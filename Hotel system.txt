@@ -1,0 +1,134 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+// Room structure to store room information
+struct Room {
+    int roomNumber;
+    string roomType;
+    bool isAvailable;
+    double price;
+};
+
+// Reservation structure to store reservation details
+struct Reservation {
+    int roomNumber;
+    string customerName;
+    int nights;
+    double totalCost;
+};
+
+// Hotel class to manage rooms and reservations
+class Hotel {
+private:
+    vector<Room> rooms;
+    vector<Reservation> reservations;
+
+public:
+    // Initialize hotel rooms
+    void addRoom(int roomNumber, string roomType, double price) {
+        rooms.push_back({roomNumber, roomType, true, price});
+    }
+
+    // Display available rooms
+    void showAvailableRooms() {
+        cout << "Available Rooms:\n";
+        for (const auto& room : rooms) {
+            if (room.isAvailable) {
+                cout << "Room Number: " << room.roomNumber
+                     << ", Type: " << room.roomType
+                     << ", Price per night: $" << room.price << endl;
+            }
+        }
+    }
+
+    // Book a room
+    void bookRoom(int roomNumber, string customerName, int nights) {
+        for (auto& room : rooms) {
+            if (room.roomNumber == roomNumber && room.isAvailable) {
+                room.isAvailable = false;
+                double totalCost = room.price * nights;
+                reservations.push_back({roomNumber, customerName, nights, totalCost});
+                cout << "Room " << roomNumber << " booked successfully for " << customerName
+                     << ". Total cost: $" << totalCost << endl;
+                return;
+            }
+        }
+        cout << "Room " << roomNumber << " is not available.\n";
+    }
+
+    // Check out a room
+    void checkOut(int roomNumber) {
+        for (auto& room : rooms) {
+            if (room.roomNumber == roomNumber && !room.isAvailable) {
+                room.isAvailable = true;
+                for (auto it = reservations.begin(); it != reservations.end(); ++it) {
+                    if (it->roomNumber == roomNumber) {
+                        cout << "Checkout successful for " << it->customerName
+                             << ". Total amount paid: $" << it->totalCost << endl;
+                        reservations.erase(it);
+                        return;
+                    }
+                }
+            }
+        }
+        cout << "Room " << roomNumber << " is not currently booked.\n";
+    }
+};
+
+// Main function
+int main() {
+    Hotel hotel;
+
+    // Adding rooms to the hotel
+    hotel.addRoom(101, "Single", 50.0);
+    hotel.addRoom(102, "Double", 75.0);
+    hotel.addRoom(103, "Suite", 120.0);
+
+    int choice;
+    do {
+        cout << "\nHotel Management System\n";
+        cout << "1. Show Available Rooms\n";
+        cout << "2. Book a Room\n";
+        cout << "3. Check Out\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: {
+                hotel.showAvailableRooms();
+                break;
+            }
+            case 2: {
+                int roomNumber, nights;
+                string customerName;
+                cout << "Enter room number: ";
+                cin >> roomNumber;
+                cout << "Enter customer name: ";
+                cin >> ws;
+                getline(cin, customerName);
+                cout << "Enter number of nights: ";
+                cin >> nights;
+                hotel.bookRoom(roomNumber, customerName, nights);
+                break;
+            }
+            case 3: {
+                int roomNumber;
+                cout << "Enter room number: ";
+                cin >> roomNumber;
+                hotel.checkOut(roomNumber);
+                break;
+            }
+            case 4: {
+                cout << "Exiting system...\n";
+                break;
+            }
+            default:
+                cout << "Invalid choice. Please try again.\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
